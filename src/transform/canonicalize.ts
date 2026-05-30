@@ -23,7 +23,14 @@ function stripTypesAndComments(code: string, lang: Lang): string {
   return result.code
 }
 
-/** Rename every bound identifier to a deterministic, position-based name. */
+/**
+ * Rename every bound identifier to a deterministic, position-based name.
+ *
+ * Only bindings in `scope.bindings` are renamed, so property names, object/string
+ * keys, class methods, and external import names are left intact. Statement labels
+ * are intentionally NOT canonicalized — at worst that yields a conservative
+ * "not verified" (a false negative), never a false equivalence.
+ */
 function alphaRename(ast: File): void {
   let counter = 0
   const seen = new Set<Scope>()

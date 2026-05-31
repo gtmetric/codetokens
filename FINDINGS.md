@@ -34,7 +34,7 @@ verified):
 The two GPT tokenizers agreed within ~0.5pp on every transform.
 
 **Cycle 2 + broader eval — does the saving survive the model?** (240 blind
-**Sonnet** edit trials over 16 bespoke snippets spanning a complexity gradient;
+edit trials — one fixed frontier coding model — over 16 bespoke snippets spanning a complexity gradient;
 each subagent edited code shown in one form, scored objectively by running
 hidden tests; perfect calibration):
 
@@ -120,11 +120,11 @@ how often rationale comments matter for editing specifically.
 
 ## Scope & limits (read this before generalizing)
 
-- One model (**Sonnet**), **JS/TS**, an **edit** task, modest n (5 OSS files for
+- One fixed model (held constant across all trials), **JS/TS**, an **edit** task, modest n (5 OSS files for
   Cycle 1; 16 + 10 bespoke snippets for the evals).
-- **tiktoken (GPT) tokenizers only.** Claude's exact tokenizer is unverified (its
-  API was unfunded during the work); the two GPT BPEs agreed closely, so
-  cross-tokenizer generalization looks likely but isn't confirmed for Claude.
+- **Local `tiktoken` (GPT) tokenizers only.** Other tokenizers (e.g. hosted-model
+  ones) are unverified here; the two GPT BPEs agreed within ~0.5pp, so
+  cross-tokenizer generalization looks likely but isn't confirmed beyond them.
 - The comment results assume task intent lives in the prompt; a workflow that
   relies on the agent reading docstrings for intent would behave differently.
 - These are findings from a focused experiment, not a large study. They're meant

@@ -31,14 +31,14 @@ The full, evidence-tagged writeup with honest confidence levels and scope is in
 The work proceeded in verified cycles; design docs are under `docs/superpowers/`
 and machine-readable results under `results/`.
 
-1. **Measurement harness** — a multi-tokenizer (Claude API + local `tiktoken`)
-   pipeline that applies source transforms to real OSS code and ranks token
-   savings, with a **semantic-equivalence checker** so no saving is ever claimed
-   on code that was silently broken. → `results/report.md`
-2. **Edit-accuracy eval** — does the saving survive the model? Fresh **Sonnet**
-   subagents edit code shown in each form, scored objectively by running hidden
-   test suites. A broader 240-trial run across a complexity gradient corrected an
-   early over-claim. → `results/eval-report.md`
+1. **Measurement harness** — a multi-tokenizer (local `tiktoken`, with a
+   pluggable adapter interface) pipeline that applies source transforms to real
+   OSS code and ranks token savings, with a **semantic-equivalence checker** so no
+   saving is ever claimed on code that was silently broken. → `results/report.md`
+2. **Edit-accuracy eval** — does the saving survive the model? Fresh subagents
+   (a single fixed frontier coding model) edit code shown in each form, scored
+   objectively by running hidden test suites. A broader 240-trial run across a
+   complexity gradient corrected an early over-claim. → `results/eval-report.md`
 3. **WHY/HOW comment eval** — an attempt to test whether *rationale* comments
    matter more than *mechanical* ones. **Inconclusive** (a snippet-design
    artifact, honestly documented rather than buried). → `results/why-how-report.md`
@@ -54,8 +54,8 @@ bun run fetch-corpus        # vendor MIT OSS source into corpus/ (network)
 # Cycle 1 — token measurement (local tiktoken tokenizers; offline)
 bun run experiment          # → results/report.md
 
-# Cycle 2 — edit-accuracy eval (the model-in-the-loop runs are driven via the
-# Claude Code Workflow tool; see eval/src/ and the design docs)
+# Cycle 2 — edit-accuracy eval (the model-in-the-loop trials are driven by a
+# subagent workflow; see eval/src/ and the design docs)
 bun run eval:generate && bun run eval:score && bun run eval:report
 
 bun test                    # full suite
@@ -66,12 +66,12 @@ bun run typecheck
 
 ```
 src/
-  tokenizer/        multi-tokenizer adapters (tiktoken + Anthropic) + cache
+  tokenizer/        pluggable tokenizer adapters (local tiktoken) + cache
   transform/        Babel-based code transforms + canonicalizer + equivalence checker
   experiment/       runner + report (Cycle 1)
 corpus/             vendored MIT OSS source + manifest + ATTRIBUTION.md
 eval/
-  src/              edit-eval harness (forms, scorer, report, Sonnet workflow)
+  src/              edit-eval harness (forms, scorer, report, subagent workflow)
   snippets/         16 bespoke edit snippets (complexity-tiered)
   why-how/          Cycle 3 eval (2 comment forms + 10 snippets)
 docs/superpowers/   specs + implementation plans (design history)

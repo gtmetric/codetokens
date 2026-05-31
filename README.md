@@ -51,9 +51,8 @@ Requires [Bun](https://bun.sh).
 bun install
 bun run fetch-corpus        # vendor MIT OSS source into corpus/ (network)
 
-# Cycle 1 — token measurement (tiktoken-only by default; offline)
+# Cycle 1 — token measurement (local tiktoken tokenizers; offline)
 bun run experiment          # → results/report.md
-ANTHROPIC_API_KEY=sk-... bun run experiment   # adds the exact Claude column
 
 # Cycle 2 — edit-accuracy eval (the model-in-the-loop runs are driven via the
 # Claude Code Workflow tool; see eval/src/ and the design docs)
@@ -62,10 +61,6 @@ bun run eval:generate && bun run eval:score && bun run eval:report
 bun test                    # full suite
 bun run typecheck
 ```
-
-> The Claude tokenizer column needs a **funded Anthropic API key** (there's no
-> accurate local Claude tokenizer). Without one, the harness degrades gracefully
-> to the local GPT tokenizers — which is how every result here was produced.
 
 ## Repository layout
 

@@ -13,3 +13,6 @@ test('new: a credit crossing from below 1000 to >= 1000 earns 1% interest', () =
 test('new: bonus applies only on the crossing entry, not when already >= 1000', () => {
   expect(runningBalance([{ type: 'credit', amount: 500 }, { type: 'credit', amount: 600 }])).toEqual([500, 1111])
 })
+test('new: no repeat bonus on a credit that arrives when already >= 1000', () => {
+  expect(runningBalance([{ type: 'credit', amount: 1200 }, { type: 'credit', amount: 100 }])).toEqual([1212, 1312])
+})

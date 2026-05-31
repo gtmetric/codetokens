@@ -1,4 +1,6 @@
-# js-exp — can JS/TS be made more token-efficient for AI coding agents?
+# codetokens
+
+*A research experiment: can JS/TS be made more token-efficient for AI coding agents?*
 
 AI coding agents read and write source code as **tokens**, and tokens are the
 currency of cost, latency, and context budget. This repo is an empirical

@@ -66,7 +66,7 @@ export function buildReport(cells: Cell[]): Report {
 }
 
 function fmt(n: number): string {
-  return `${n >= 0 ? '' : ''}${n.toFixed(1)}%`
+  return `${n.toFixed(1)}%`
 }
 
 function renderMarkdown(rows: ReportRow[]): string {

@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { FORMS, type Form } from './form.ts'
 import { GeneratedSchema, type Generated } from './manifest.ts'
 import { TrialResultsSchema, type TrialResult } from './trial.ts'
+import { COMPLEXITY_LEVELS, type Complexity } from './snippet.ts'
 
 export type ReportRow = {
   form: Form
@@ -12,7 +13,16 @@ export type ReportRow = {
   tokenSavingsPct: number
   deltaSuccessVsOriginal: number
 }
-export type EvalReport = { rows: ReportRow[]; markdown: string }
+
+export type ComplexityFormRow = {
+  complexity: Complexity
+  form: string
+  trials: number
+  passed: number
+  successRate: number
+}
+
+export type EvalReport = { rows: ReportRow[]; byComplexity: ComplexityFormRow[]; markdown: string }
 
 function meanFormTokens(generated: Generated, form: Form, tokenizer: string): number {
   const vals = generated.snippets
@@ -42,7 +52,35 @@ export function buildEvalReport(trials: TrialResult[], generated: Generated, tok
   }).filter((r) => r.trials > 0)
 
   rows.sort((a, b) => b.tokenSavingsPct - a.tokenSavingsPct)
-  return { rows, markdown: renderMarkdown(rows, trials, tokenizer) }
+
+  // Aggregate by complexity × form, only for tiers that have trials
+  const byComplexity: ComplexityFormRow[] = []
+  for (const complexity of COMPLEXITY_LEVELS) {
+    // Collect snippets for this tier
+    const snippetsForTier = generated.snippets
+      .filter((s) => s.complexity === complexity)
+      .map((s) => s.name)
+    if (snippetsForTier.length === 0) continue
+
+    const tierTrials = trials.filter((t) => snippetsForTier.includes(t.snippet))
+    if (tierTrials.length === 0) continue
+
+    // Get forms present in these trials
+    const formsPresent = [...new Set(tierTrials.map((t) => t.form))]
+    for (const form of formsPresent) {
+      const ts = tierTrials.filter((t) => t.form === form)
+      const passed = ts.filter((t) => t.passed).length
+      byComplexity.push({
+        complexity,
+        form,
+        trials: ts.length,
+        passed,
+        successRate: ts.length === 0 ? 0 : passed / ts.length,
+      })
+    }
+  }
+
+  return { rows, byComplexity, markdown: renderMarkdown(rows, byComplexity, trials, tokenizer) }
 }
 
 function rateFor(trials: TrialResult[], form: Form): number {
@@ -54,7 +92,7 @@ function pct(n: number): string {
   return `${(n * 100).toFixed(0)}%`
 }
 
-function renderMarkdown(rows: ReportRow[], trials: TrialResult[], tokenizer: string): string {
+function renderMarkdown(rows: ReportRow[], byComplexity: ComplexityFormRow[], trials: TrialResult[], tokenizer: string): string {
   const lines: string[] = []
   lines.push('# Compact-Form Edit-Accuracy Report', '')
   lines.push(
@@ -67,6 +105,28 @@ function renderMarkdown(rows: ReportRow[], trials: TrialResult[], tokenizer: str
     lines.push(
       `| ${r.form} | ${pct(r.successRate)} | ${r.passed}/${r.trials} | ${r.meanTokens.toFixed(0)} | ${r.tokenSavingsPct.toFixed(1)}% | ${(r.deltaSuccessVsOriginal * 100).toFixed(0)} pp |`,
     )
+  }
+
+  // Complexity × form breakdown
+  lines.push('', '## Edit success by complexity × form', '')
+  lines.push('Shows whether minification fragility rises with code complexity.', '')
+  if (byComplexity.length === 0) {
+    lines.push('_No data._')
+  } else {
+    // Collect tiers and forms present in byComplexity
+    const tiersPresent = COMPLEXITY_LEVELS.filter((c) => byComplexity.some((r) => r.complexity === c))
+    const formsPresent = [...new Set(byComplexity.map((r) => r.form))]
+    // Header row
+    lines.push(`| Complexity | ${formsPresent.map((f) => `${f} (pass/total)`).join(' | ')} |`)
+    lines.push(`|---|${formsPresent.map(() => '---').join('|')}|`)
+    for (const tier of tiersPresent) {
+      const cells = formsPresent.map((form) => {
+        const row = byComplexity.find((r) => r.complexity === tier && r.form === form)
+        if (row === undefined) return '—'
+        return `${pct(row.successRate)} (${row.passed}/${row.trials})`
+      })
+      lines.push(`| ${tier} | ${cells.join(' | ')} |`)
+    }
   }
 
   // Calibration: per-snippet success on the ORIGINAL form.

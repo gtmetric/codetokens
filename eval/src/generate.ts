@@ -23,7 +23,7 @@ async function main(): Promise<void> {
       }
       forms[form] = { code, tokens }
     }
-    out.push({ name: s.name, lang: s.meta.lang, exportName: s.meta.exportName, request: s.request, forms })
+    out.push({ name: s.name, lang: s.meta.lang, exportName: s.meta.exportName, complexity: s.meta.complexity, request: s.request, forms })
   }
   const manifest = GeneratedSchema.parse({ snippets: out })
   writeFileSync('eval/generated.json', JSON.stringify(manifest, null, 2))

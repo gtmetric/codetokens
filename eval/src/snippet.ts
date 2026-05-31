@@ -3,7 +3,14 @@ import { join } from 'node:path'
 import { z } from 'zod'
 import { LANGS, type Lang } from '../../src/lang.ts'
 
-const MetaSchema = z.object({ exportName: z.string().min(1), lang: z.enum(LANGS) })
+export const COMPLEXITY_LEVELS = ['simple', 'moderate', 'complex', 'very-complex'] as const
+export type Complexity = (typeof COMPLEXITY_LEVELS)[number]
+
+const MetaSchema = z.object({
+  exportName: z.string().min(1),
+  lang: z.enum(LANGS),
+  complexity: z.enum(COMPLEXITY_LEVELS),
+})
 export type SnippetMeta = z.infer<typeof MetaSchema>
 
 export type Snippet = {

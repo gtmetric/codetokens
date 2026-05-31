@@ -9,6 +9,7 @@ test('GeneratedSchema accepts a well-formed manifest', () => {
         name: 's',
         lang: 'ts',
         exportName: 'f',
+        complexity: 'simple',
         request: 'do x',
         forms: { original: { code: 'export const f = 1', tokens: { 'tiktoken:o200k_base': 5 } } },
       },

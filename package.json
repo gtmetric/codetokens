@@ -1,5 +1,8 @@
 {
   "name": "js-exp",
+  "version": "0.1.0",
+  "description": "An empirical experiment + harness measuring whether JS/TS can be made more token-efficient for AI coding agents.",
+  "license": "MIT",
   "type": "module",
   "private": true,
   "scripts": {

@@ -36,7 +36,11 @@ function dictName(i: number): string {
 function renameLocals(ast: File, naming: (i: number) => string): void {
   let counter = 0
   const seen = new Set<unknown>()
-  const localScopes: { rename(from: string, to: string): void; bindings: Record<string, unknown> }[] = []
+  const localScopes: {
+    rename(from: string, to: string): void
+    hasBinding(name: string): boolean
+    bindings: Record<string, unknown>
+  }[] = []
   traverse(ast, {
     enter(path) {
       const scope = path.scope
@@ -46,9 +50,20 @@ function renameLocals(ast: File, naming: (i: number) => string): void {
       localScopes.push(scope)
     },
   })
+  // Rename innermost scopes first. `scope.rename` rewrites every reference in the
+  // subtree, so renaming an outer scope before its descendants can capture inner
+  // references that share the outer binding's NEW name. Going inside-out means each
+  // inner scope already carries its final names when an enclosing scope is processed.
+  localScopes.reverse()
   for (const scope of localScopes) {
     for (const name of Object.keys(scope.bindings)) {
-      scope.rename(name, naming(counter++))
+      // Pick the next candidate that doesn't collide anywhere on the scope chain.
+      // hasBinding() catches duplicate-in-scope, already-renamed siblings, and
+      // outer/module-scope names we'd otherwise shadow or capture. Counter only ever
+      // advances, so renaming stays deterministic across runs.
+      let candidate = naming(counter++)
+      while (scope.hasBinding(candidate)) candidate = naming(counter++)
+      scope.rename(name, candidate)
     }
   }
 }

@@ -13,6 +13,16 @@ test('arrow-functions converts a top-level declaration and is marked manual', ()
   expect(r.verified).toBe(false)
 })
 
+test('arrow-functions handles export default function without throwing', () => {
+  const src = 'export default function pMap(a, b) { return a + b }'
+  let out = ''
+  expect(() => {
+    out = arrowFunctions.apply(src, 'js')
+  }).not.toThrow()
+  expect(out).toContain('=>')
+  expect(out).toContain('export default')
+})
+
 test('keyword-sigils replaces keywords with sigils and round-trips', () => {
   const src = 'export const f = function () { return 1 }'
   const out = keywordSigils.apply(src, 'js')

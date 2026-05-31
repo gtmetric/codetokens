@@ -21,6 +21,11 @@ export const arrowFunctions: Transform = {
         const { id, params, body, async: isAsync } = path.node
         if (id == null) return
         const arrow = t.arrowFunctionExpression(params, body, isAsync)
+        if (path.parentPath?.isExportDefaultDeclaration() === true) {
+          // `export default function` can't hold a VariableDeclaration; emit a bare arrow expression.
+          path.replaceWith(arrow)
+          return
+        }
         const decl = t.variableDeclaration('const', [t.variableDeclarator(id, arrow)])
         path.replaceWith(decl)
       },

@@ -1,1 +1,1 @@
-{ "exportName": "normalizeRow", "lang": "ts" }
+{ "exportName": "normalizeRow", "lang": "ts", "complexity": "complex" }

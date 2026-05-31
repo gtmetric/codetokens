@@ -7,3 +7,6 @@ eval/generated.json
 eval/candidates.json
 results/eval-results.json
 eval/src/eval.generated.workflow.js
+eval/why-how/run.generated.workflow.js
+eval/why-how/candidates.json
+eval/why-how/results.json

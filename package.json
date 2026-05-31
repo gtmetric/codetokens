@@ -6,7 +6,10 @@
     "test": "bun test",
     "typecheck": "tsc",
     "fetch-corpus": "bun run scripts/fetch-corpus.ts",
-    "experiment": "bun run src/main.ts"
+    "experiment": "bun run src/main.ts",
+    "eval:generate": "bun run eval/src/generate.ts",
+    "eval:score": "bun run eval/src/score-all.ts",
+    "eval:report": "bun run eval/src/report.ts"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",

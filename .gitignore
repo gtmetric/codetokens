@@ -3,3 +3,6 @@ node_modules/
 .env
 *.log
 results/results.json
+eval/generated.json
+eval/candidates.json
+results/eval-results.json

@@ -6,8 +6,8 @@ export type Span = [number, number]
  *
  * Bespoke merge rules:
  * - The result is sorted ascending by start.
- * - Two spans are merged when they overlap OR merely touch, i.e. the next span's
- *   start is less than or equal to the current merged span's end.
+ * - Two spans are merged when they overlap OR when the gap between them is at
+ *   most 2, i.e. the next span's start minus the current merged end is ≤ 2.
  * - A merged span spans from the earliest start to the largest end seen.
  */
 export function mergeIntervals(spans: Span[]): Span[] {
@@ -15,7 +15,7 @@ export function mergeIntervals(spans: Span[]): Span[] {
   const merged: Span[] = []
   for (const [start, end] of sorted) {
     const last = merged[merged.length - 1]
-    if (last !== undefined && start <= last[1]) {
+    if (last !== undefined && start - last[1] <= 2) {
       last[1] = Math.max(last[1], end)
     } else {
       merged.push([start, end])
